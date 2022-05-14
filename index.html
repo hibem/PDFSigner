@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+	<title>PDFSigner</title>
+
+	<style>
+		html {
+			background-color: #ddd;
+		}
+
+		.theinput {
+			position: fixed;
+			z-index: 101;
+		}
+
+		#print {
+			position: relative;
+			margin: 0 auto;
+			z-index: 1;
+			width: 794px;
+		}
+
+		.signarea {
+			position: absolute;
+			z-index: 100;
+			top: 0;
+			left: 0;
+		}
+
+		.signarea img {
+			width: 43mm;
+		}
+
+		canvas {
+			margin: 0;
+			padding: 0;
+			margin-bottom: -6px;
+		}
+
+		.zoom,
+		.tdeg,
+		.tview {
+			position: absolute;
+			cursor: pointer;
+			background-color: #fff;
+			padding: 3px 10px;
+			border-radius: 4px;
+		}
+
+		.zoom {
+			top: 0;
+			left: -30px;
+		}
+
+		.del {
+			top: 0;
+			right: -30px;
+		}
+
+		.tview {
+			left: -30px;
+			bottom: 0;
+		}
+
+		.theinput {
+			width: 300px;
+			margin: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<section class="theinput">
+		<div class="field">
+			<h1 class="title">PDFSigner</h1>
+		</div>
+		<div class="field">
+			<div class="file">
+				<label class="file-label">
+					<input class="file-input" type="file" name="resume" id='pdf'>
+					<span class="file-cta">
+						<span class="file-label">
+							1. 选择PDF文件...
+						</span>
+					</span>
+				</label>
+			</div>
+			<p class="help">
+				<span id="pdfName"></span>
+				<span id="pdfSize"></span>
+				<span id="pagesText"></span>
+			</p>
+		</div>
+
+		<div class="field">
+			<div class="file">
+				<label class="file-label">
+					<input class="file-input" type="file" name="resume" id='file_input' disabled>
+					<span class="file-cta">
+						<span class="file-label">
+							2. 选择签章图片...
+						</span>
+					</span>
+				</label>
+			</div>
+		</div>
+		<div class="filed">
+			<p>缩放级别</p>
+			<div class="control">
+			<label class="radio"> <input type="radio" name="pdfscale"value="1"> 1</label>
+			<label class="radio"> <input type="radio" name="pdfscale" checked value="2"> 2</label>
+			<label class="radio"> <input type="radio" name="pdfscale" value="3"> 3</label>
+			<label class="radio"> <input type="radio" name="pdfscale" value="4"> 4</label>
+		  </div>
+		</div>
+		<div class="filed">
+			<p>图像质量</p>
+			<div class="control">
+			<label class="radio"> <input type="radio" name="pdfquality" value="0.3"> 0.3</label>
+			<label class="radio"> <input type="radio" name="pdfquality" value="0.5"> 0.5</label>
+			<label class="radio"> <input type="radio" name="pdfquality" value="0.75"> 0.7</label>
+			<label class="radio"> <input type="radio" name="pdfquality" value="0.9" checked> 0.9</label>
+			<label class="radio"> <input type="radio" name="pdfquality" value="0.1"> 1</label>
+		  </div>
+		</div>
+		<div class="field">
+			<!-- <button class="button is-link" id="savelocal">保存设置</button> -->
+		<br>
+			<button class="button" id="reset">重置</button>
+		</div>
+		<div class="field" style="display:none">
+			<p>重命名：</p>
+			<input class="input" id="fileName" type="text" value="">
+		</div>
+		<div class="field"><button class="button is-success" id="download">打印PDF</button></div>
+        <div class="field">
+            <p>外部工具：</p>
+            <a href="https://www.remove.bg/zh/upload" target="_blank" class="button is-text">签章图片透明去背景</a>
+        </div>
+	</section>
+
+	<section id="print">
+		<div id="imgDiv">
+		</div>
+		<div class="signarea">
+		</div>
+	</section>
+
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jq_ui.js"></script>
+	<script type="text/javascript" src="js/FileSaver.js"></script>
+	<script type="text/javascript" src="js/pdf.js"></script>
+	<script type="text/javascript" src="js/html2pdf.js"></script>
+	<script type="text/javascript" src="js/pdf.worker.js"></script>
+	<script>
+		//data 载入缓存和初始化
+
+		let signarea = $('.signarea')
+		let signinput = $("#file_input")
+		//移动
+		$(function () {
+			$(".signarea").draggable()
+		})
+		//缩放
+		let toscale = function () {
+			$('.zoom').click(function () {
+                if (signdata.scale <= 2.5) {						
+					signdata.scale = signdata.scale / 1 + 0.1
+					} else {
+						signdata.scale = 1
+					}
+					signarea.css('transform', `scale(${signdata.scale})`)
+			})
+		}
+		//旋转
+		let toratate = function () {
+			$('.tdeg').click(function () {
+				signdata.deg = signdata.deg / 1 + 15
+				signarea.find('img').css('transform', `rotate(${signdata.deg}deg)`)
+			})
+		}
+		//透明度
+		let toopacity = function () {
+			$('.tview').click(function () {
+				if (signdata.opacity >= 0.1) {
+					signdata.opacity = signdata.opacity / 1 - 0.15					
+				} else {
+					signdata.opacity = 1
+				}
+				signarea.find('img').css('opacity', signdata.opacity)
+			})
+		}
+		let signdata = {
+			scale: 1,
+			deg: 0,
+			opacity: 1
+		}
+		if (localStorage.scale) {
+			signdata = {
+				scale: localStorage.scale,
+				deg: localStorage.deg,
+				opacity: localStorage.opacity
+			}
+			signarea.css({
+				'transform': 'scale(' + signdata.scale + `)`,
+				'left': localStorage.left,
+				'top': localStorage.top,
+			})
+			signarea.html(`<span class="zoom">+</span><img src="${localStorage.img}" alt=""/><span class="tview">▨</span><span class="tdeg">↺</span>`)
+
+			signarea.find('img').css({
+				'transform': `rotate(${signdata.deg}deg)`,
+				'opacity': localStorage.opacity
+			})
+			toscale()
+			toratate()
+			toopacity()
+		}
+		//公章相关：载入
+		signinput.change(function () {
+			let file = this.files[0]
+			if (!/image\/\w+/.test(file.type)) {
+				alert("文件必须为图片！")
+				return false
+			}
+			let reader = new FileReader()
+			reader.readAsDataURL(file)
+			reader.onload = function () {
+				signarea.html(`<span class="zoom">+</span><img src="${this.result}" alt=""/><span class="tview">▨</span><span class="tdeg">↺</span>`)
+			}
+			$(function () {
+				$('.zoom').click(function () {
+                    if (signdata.scale <= 2.5) {						
+					signdata.scale = signdata.scale / 1 + 0.1
+					} else {
+						signdata.scale = 1
+					}
+					signarea.css('transform', `scale(${signdata.scale})`)
+				})
+				$('.tview').click(function () {
+					if (signdata.opacity >= 0.1) {
+						signdata.opacity = signdata.opacity / 1 - 0.15
+					} else {
+						signdata.opacity = 1
+					}
+					signarea.find('img').css('opacity', signdata.opacity)
+				})
+				$('.tdeg').click(function () {
+					signdata.deg = signdata.deg / 1 + 15
+					signarea.find('img').css('transform', `rotate(${signdata.deg}deg)`)
+				})
+
+			})
+
+		})
+
+
+		let pdfFile;
+		$('#pdf').change(function () {
+			$('input#file_input').removeAttr("disabled")
+			let pdfFileURL = $('#pdf').val();
+			if (pdfFileURL) {
+				$("#imgDiv").empty(); //清空上一PDF文件展示图
+				let files = $('#pdf').prop('files'); //获取到文件
+				let fileSize = files[0].size;
+				let mb;
+				if (fileSize) {
+					mb = fileSize / 1048576;
+					if (mb > 50) {
+						alert("文件大小不能>50M");
+						return;
+					}
+				}
+				$("#download").attr("style", "display:block")
+				$("#fileName").parents('.field').attr("style", "display:block")
+				$("#pdfName").text(`文件名：${files[0].name}`).attr("title", files[0].name)
+				$("#pdfSize").text(`（${mb.toFixed(2)}Mb）`)
+				$("#fileName").val(`${files[0].name}`)
+
+				/*pdf.js无法直接打开本地文件,所以利用FileReader转换*/
+				let reader = new FileReader();
+				reader.readAsArrayBuffer(files[0]);
+				reader.onload = function (e) {
+					let myData = new Uint8Array(e.target.result)
+					let docInitParams = {
+						data: myData
+					};
+					let typedarray = new Uint8Array(this.result);
+					PDFJS.cMapUrl = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.288/cmaps/';
+					PDFJS.cMapPacked = true;
+					PDFJS.getDocument(typedarray).then(function (pdf) { //PDF转换为canvas
+						$("#imgDiv").css("border", "0"); //清除文本、边框
+						if (pdf) {
+							window.pageNum = pdf.numPages;
+							$("#pagesText").text(`共 ${pageNum} 页`);
+							for (let i = 1; i <= pageNum; i++) {
+								let canvas = document.createElement('canvas');
+								canvas.id = "pageNum" + i;
+								$("#imgDiv").append(canvas);
+								let context = canvas.getContext('2d');
+								openPage(pdf, i, context);
+							}
+						}
+					});
+				};
+			}
+		});
+
+		function openPage(pdfFile, pageNumber, context) {
+			let scale = 2;
+			pdfFile.getPage(pageNumber).then(function (page) {
+				viewport = page.getViewport(scale); // reference canvas via context
+				let canvas = context.canvas;
+				canvas.width = viewport.width;
+				// $("#print").attr("style", "width:"+canvas.width+"px")
+				canvas.height = viewport.height;
+				// 记录当前canvas的width，height
+				window.wi = canvas.width;
+				window.he = canvas.height;
+				canvas.style.width = "100%";
+				canvas.style.height = "100%";
+				let renderContext = {
+					canvasContext: context,
+					viewport: viewport
+				};
+				page.render(renderContext);
+			});
+			return
+		};
+
+		//下载pdf			
+
+		let download = document.getElementById("download")
+		download.addEventListener("click", () => {
+			signarea.find('span').css('display', 'none')
+			let fname = $('#fileName').val()
+			let canvas1 = $('canvas')
+			let tHeight = canvas1[0].offsetHeight
+			let tWidth = canvas1[0].offsetWidth
+			
+			let tScale = $("input[name='pdfscale']:checked").val()/1
+			let tQuality = $("input[name='pdfquality']:checked").val()/1
+			const invoice = this.document.getElementById("print")
+			let opt = {
+				filename: fname,
+				image: { type: 'jpeg', quality: tQuality },
+				html2canvas: { scale: tScale },
+				jsPDF: { unit: 'px', format: [tWidth, tHeight], orientation: 'portrait' }
+			}
+			//保存缓存
+			localStorage.scale = signdata.scale
+			localStorage.deg = signdata.deg
+			localStorage.opacity = signdata.opacity
+			localStorage.top = signarea.css('top')
+			localStorage.left = signarea.css('left')
+			localStorage.img = signarea.find('img').attr("src")
+			html2pdf().from(invoice).set(opt).save()
+		})
+
+		//清除缓存
+		$('#reset').click(function () {
+			localStorage.clear()
+			location.reload()
+		})
+
+	</script>
+</body>
+
+</html>
