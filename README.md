@@ -9,3 +9,6 @@ Pdf.js
 pdf.worker.js
 ## 参考项目
 https://github.com/xxlllq/pdf2img
+
+## DEMO
+https://github.com/hibem/PDFSigner
