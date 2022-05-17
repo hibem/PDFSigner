@@ -111,37 +111,37 @@
 		<div class="filed">
 			<p>缩放级别</p>
 			<div class="control">
-			<label class="radio"> <input type="radio" name="pdfscale"value="1"> 1</label>
-			<label class="radio"> <input type="radio" name="pdfscale" checked value="2"> 2</label>
-			<label class="radio"> <input type="radio" name="pdfscale" value="3"> 3</label>
-			<label class="radio"> <input type="radio" name="pdfscale" value="4"> 4</label>
-		  </div>
+				<label class="radio"> <input type="radio" name="pdfscale" value="1"> 1</label>
+				<label class="radio"> <input type="radio" name="pdfscale" checked value="2"> 2</label>
+				<label class="radio"> <input type="radio" name="pdfscale" value="3"> 3</label>
+				<label class="radio"> <input type="radio" name="pdfscale" value="4"> 4</label>
+			</div>
 		</div>
 		<div class="filed">
 			<p>图像质量</p>
 			<div class="control">
-			<label class="radio"> <input type="radio" name="pdfquality" value="0.3"> 0.3</label>
-			<label class="radio"> <input type="radio" name="pdfquality" value="0.5"> 0.5</label>
-			<label class="radio"> <input type="radio" name="pdfquality" value="0.75"> 0.7</label>
-			<label class="radio"> <input type="radio" name="pdfquality" value="0.9" checked> 0.9</label>
-			<label class="radio"> <input type="radio" name="pdfquality" value="0.1"> 1</label>
-		  </div>
+				<label class="radio"> <input type="radio" name="pdfquality" value="0.3"> 0.3</label>
+				<label class="radio"> <input type="radio" name="pdfquality" value="0.5"> 0.5</label>
+				<label class="radio"> <input type="radio" name="pdfquality" value="0.75"> 0.7</label>
+				<label class="radio"> <input type="radio" name="pdfquality" value="0.9" checked> 0.9</label>
+				<label class="radio"> <input type="radio" name="pdfquality" value="0.1"> 1</label>
+			</div>
 		</div>
 		<div class="field">
 			<!-- <button class="button is-link" id="savelocal">保存设置</button> -->
-		<br>
+			<br>
 			<button class="button" id="reset">重置</button>
 		</div>
 		<div class="field" style="display:none">
 			<p>重命名：</p>
 			<input class="input" id="fileName" type="text" value="">
 		</div>
-		<div class="field"><button class="button is-success" id="download">打印PDF</button></div>
-        <div class="field">
-            <p>外部工具：</p>
-            <a href="https://www.remove.bg/zh/upload" target="_blank" class="button is-text">Remove.bg(签章图片透明去背景)</a>
+		<div class="field"><button class="button is-success" id="download">导出PDF</button></div>
+		<div class="field">
+			<p>外部工具：</p>
+			<a href="https://www.remove.bg/zh/upload" target="_blank" class="button is-text">Remove.bg(签章图片透明去背景)</a>
 			<p class="tip">建议使用PS等工具制作更细节的透明章</p>
-        </div>
+		</div>
 	</section>
 
 	<section id="print">
@@ -170,12 +170,12 @@
 		//缩放
 		let toscale = function () {
 			$('.zoom').click(function () {
-                if (signdata.scale <= 2.5) {						
+				if (signdata.scale <= 2.5) {
 					signdata.scale = signdata.scale / 1 + 0.1
-					} else {
-						signdata.scale = 1
-					}
-					signarea.css('transform', `scale(${signdata.scale})`)
+				} else {
+					signdata.scale = 1
+				}
+				signarea.css('transform', `scale(${signdata.scale})`)
 			})
 		}
 		//旋转
@@ -189,7 +189,7 @@
 		let toopacity = function () {
 			$('.tview').click(function () {
 				if (signdata.opacity >= 0.1) {
-					signdata.opacity = signdata.opacity / 1 - 0.15					
+					signdata.opacity = signdata.opacity / 1 - 0.15
 				} else {
 					signdata.opacity = 1
 				}
@@ -236,8 +236,8 @@
 			}
 			$(function () {
 				$('.zoom').click(function () {
-                    if (signdata.scale <= 2.5) {						
-					signdata.scale = signdata.scale / 1 + 0.1
+					if (signdata.scale <= 2.5) {
+						signdata.scale = signdata.scale / 1 + 0.1
 					} else {
 						signdata.scale = 1
 					}
@@ -343,9 +343,9 @@
 			let canvas1 = $('canvas')
 			let tHeight = canvas1[0].offsetHeight
 			let tWidth = canvas1[0].offsetWidth
-			
-			let tScale = $("input[name='pdfscale']:checked").val()/1
-			let tQuality = $("input[name='pdfquality']:checked").val()/1
+
+			let tScale = $("input[name='pdfscale']:checked").val() / 1
+			let tQuality = $("input[name='pdfquality']:checked").val() / 1
 			const invoice = this.document.getElementById("print")
 			let opt = {
 				filename: fname,
