@@ -262,7 +262,26 @@
 			})
 
 		})
-
+		
+		//时间
+		function getCurrentTime() {
+			let date = new Date();//当前时间
+			let month = zeroFill(date.getMonth() + 1);//月
+			let day = zeroFill(date.getDate());//日
+			let hour = zeroFill(date.getHours());//时
+			let minute = zeroFill(date.getMinutes());//分
+			let second = zeroFill(date.getSeconds());//秒			
+			//当前时间
+			let curTime = date.getFullYear() + month + day + hour + minute;			
+			return curTime;
+		}
+		function zeroFill(i){
+			if (i >= 0 && i <= 9) {
+				return "0" + i;
+			} else {
+				return i;
+			}
+		}
 
 		let pdfFile;
 		$('#pdf').change(function () {
@@ -284,7 +303,7 @@
 				$("#fileName").parents('.field').attr("style", "display:block")
 				$("#pdfName").text(`文件名：${files[0].name}`).attr("title", files[0].name)
 				$("#pdfSize").text(`（${mb.toFixed(2)}Mb）`)
-				$("#fileName").val(`${files[0].name}`)
+				$("#fileName").val(`${files[0].name.substring(0,files[0].name.length-4)}${getCurrentTime()}.pdf`)
 
 				/*pdf.js无法直接打开本地文件,所以利用FileReader转换*/
 				let reader = new FileReader();
