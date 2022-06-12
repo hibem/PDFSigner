@@ -12,3 +12,6 @@ https://github.com/xxlllq/pdf2img
 
 ## DEMO
 https://hibem.github.io/PDFSigner/
+
+## 留言和赞助
+https://dun.mianbaoduo.com/@hibem
